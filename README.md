@@ -12,6 +12,7 @@
     - [Construir modelo de clasificacion multi clase](#Construir-modelo-de-clasificacion-multi-clase)
     - [Graficar perdida y certeza del modelo durante entrenamiento](#Graficar-perdida-y-certeza-del-modelo-durante-entrenamiento)
     - [Evitando el overfitting](#Evitando-el-overfitting)
+    - [Modelos pre entrenados (transfer learning)](#Modelos-pre-entrenados-transfer-learning)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -192,4 +193,60 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.Dense(1, activation='sigmoid')
 ])
+```
+
+## Modelos pre entrenados (transfer learning)
+
+Existe la posibilidad de tranferir el conocimiento de un modelo pre-entrenado a nuestro modelo. Primero debemos cargar nuestro modelo, en este caso InceptionV3 desde TensorFlow, y los pesos los cargaremos desde un archivo.
+
+```python
+from tensorflow.keras.applications.inception_v3 import InceptionV3
+
+local_weights_file = 'inception_v3_weights.h5'
+```
+
+Definimos sus parametros
+
+```python
+pre_trained_model = InceptionV3(input_shape = (150, 150, 3), 
+                                include_top = False, # Si deseamos conectar otro modelo lo dejamos en False
+                                weights = None)
+```
+
+Cargamos los pesos
+
+```python
+pre_trained_model.load_weights(local_weights_file)
+```
+
+Y definiremos que todas las capas no son entrenable
+
+```python
+for layer in pre_trained_model.layers:
+    layer.trainable = False
+```
+
+Por ultimo veremos la forma de la salida de los datos y referenciamos a la ultima capa.
+
+```python
+last_layer = pre_trained_model.get_layer('mixed7')
+print('last layer output shape: ', last_layer.output_shape)
+last_output = last_layer.output
+```
+
+Ahora creamos nuestro modelo y lo acoplamos con el modelo pre-entrenado.
+
+```python
+from tensorflow.keras.optimizers import RMSprop
+
+x = layers.Flatten()(last_output)
+x = layers.Dense(1024, activation='relu')(x)
+x = layers.Dropout(0.2)(x)                  
+x = layers.Dense(1, activation='sigmoid')(x)           
+
+model = Model(pre_trained_model.input, x) 
+
+model.compile(optimizer = RMSprop(lr=0.0001), 
+              loss = 'binary_crossentropy', 
+              metrics = ['accuracy'])
 ```
