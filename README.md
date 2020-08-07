@@ -5,7 +5,8 @@
 # Contenido
 - [Construir y entrenar un modelo de red neuronal usando TensorFlow 2](#Construir-y-entrenar-un-modelo-de-red-neuronal-usando-TensorFlow-2)
     - [Instalar TensorFlow 2 y Matplotlib](#Instalar-TensorFlow-2-y-Matplotlib)
-    - [Construir, compilar y entrenar modelos de ML usando TensorFlow](#Construir,-compilar-y-entrenar-modelos-de-ML-usando-TensorFlow)
+    - [Construir, compilar y entrenar modelos de ML usando TensorFlow](#Construir-compilar-y-entrenar-modelos-de-ML-usando-TensorFlow)
+    - [Predecir resultados](#Predecir-resultados)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -47,3 +48,13 @@ Ahora entrenamos
 ```python
 model.fit(xs, ys, epochs=500)
 ```
+
+## Predecir resultados
+
+Para predecir resultados tomamos nuestro modelo y ejecutamos el metodo `predict`.
+
+```python
+model.predict(X)
+```
+
+Esto nos devolvera el resultado.
