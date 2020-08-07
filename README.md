@@ -97,3 +97,43 @@ model = keras.Sequential([
     keras.layers.Dense(10, activation='softmax')
 ])
 ```
+
+## Graficar perdida y certeza del modelo durante entrenamiento
+
+Durante el entramiento podemos conservar la perdida y certeza de nuetro modelo, para ello lo asociamos a una variable.
+
+```python
+history = model.fit(xs, ys, epochs=500)
+```
+
+Separamos los valores de `accuracy` y `loss` en variables, y para tener la cantidad de `epochs` existente simplemente vemos el largo de las variables.
+
+```python
+acc      = history.history[     'accuracy' ]
+val_acc  = history.history[ 'val_accuracy' ]
+loss     = history.history[    'loss' ]
+val_loss = history.history['val_loss' ]
+
+epochs   = range(len(acc)) # Get number of epochs
+
+#------------------------------------------------
+# Plot training and validation accuracy per epoch
+#------------------------------------------------
+plt.plot  ( epochs,     acc )
+plt.plot  ( epochs, val_acc )
+plt.title ('Training and validation accuracy')
+plt.figure()
+
+#------------------------------------------------
+# Plot training and validation loss per epoch
+#------------------------------------------------
+plt.plot  ( epochs,     loss )
+plt.plot  ( epochs, val_loss )
+plt.title ('Training and validation loss'   )
+```
+
+<div> 
+  <img src="accuracy.png" width="350">
+  <br>
+  <img src="loss.png" width="350">
+</div>
