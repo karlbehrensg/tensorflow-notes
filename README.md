@@ -7,6 +7,9 @@
     - [Instalar TensorFlow 2 y Matplotlib](#Instalar-TensorFlow-2-y-Matplotlib)
     - [Construir, compilar y entrenar modelos de ML usando TensorFlow](#Construir-compilar-y-entrenar-modelos-de-ML-usando-TensorFlow)
     - [Predecir resultados](#Predecir-resultados)
+    - [Construir modelo secuencial con multiples capas](#Construir-modelo-secuencial-con-multiples-capas)
+    - [Construir modelo de clasificacion binaria](#Construir-modelo-de-clasificacion-binaria)
+    - [Construir modelo de clasificacion multi clase](#Construir-modelo-de-clasificacion-multi-clase)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -58,3 +61,39 @@ model.predict(X)
 ```
 
 Esto nos devolvera el resultado.
+
+## Construir modelo secuencial con multiples capas
+
+El modelo secuencial se define con `Sequential` y la primera capa debe siempre llevar el `input_shape`.
+
+```python
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(64, input_shape=[1]),
+    tf.keras.layers.Dense(32),
+    tf.keras.layers.Dense(1),
+])
+```
+
+## Construir modelo de clasificacion binaria
+
+El hecho de generar un modelo para clasificacion binaria implica que solo tendremos 2 valores de salida, por lo que el metodo de activacion por excelencia es el sigmoide.
+
+```python
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(10, activation='sigmoid')
+])
+```
+
+## Construir modelo de clasificacion multi clase
+
+Para la clasificacion de multiclase cambiamos la activacion de la ultima capa por `softmax`.
+
+```python
+model = keras.Sequential([
+    keras.layers.Flatten(input_shape=(28, 28)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
+])
+```
