@@ -10,6 +10,8 @@
     - [Construir modelo secuencial con multiples capas](#Construir-modelo-secuencial-con-multiples-capas)
     - [Construir modelo de clasificacion binaria](#Construir-modelo-de-clasificacion-binaria)
     - [Construir modelo de clasificacion multi clase](#Construir-modelo-de-clasificacion-multi-clase)
+    - [Graficar perdida y certeza del modelo durante entrenamiento](#Graficar-perdida-y-certeza-del-modelo-durante-entrenamiento)
+    - [Evitando el overfitting](#Evitando-el-overfitting)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -137,3 +139,57 @@ plt.title ('Training and validation loss'   )
   <br>
   <img src="loss.png" width="350">
 </div>
+
+## Evitando el overfitting
+
+### Augumentation
+
+Esta tecnica tiene principal uso en las imagenes, y consiste en que una misma imagen tome varias formas al pasar por el entrenamiento. Por lo general se utilisa `ImageDataGenerator` para esta técnica.
+
+```python
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+```
+
+Tambien se puede usar en una misma capa.
+
+```python
+data_augmentation = tf.keras.Sequential([
+    layers.experimental.preprocessing.RandomFlip("horizontal_and_vertical"),
+    layers.experimental.preprocessing.RandomRotation(0.2)
+])
+```
+
+Y simplemente la referenciamos en el modelo al construirlo.
+
+```python
+model = tf.keras.Sequential([
+    resize_and_rescale,
+    data_augmentation,
+    layers.Conv2D(16, 3, padding='same', activation='relu'),
+    layers.MaxPooling2D(),
+    # Rest of your model
+])
+```
+
+### Dropout
+
+Esta es una capa en el modelo que tiene como objetivo no activar ciertos nodos al momento de la optimización.
+
+```python
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(150, 150, 3)),
+    tf.keras.layers.MaxPooling2D(2, 2),
+    tf.keras.layers.Dropout(0.5), # Capa de Dropout
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(512, activation='relu'),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
+```
