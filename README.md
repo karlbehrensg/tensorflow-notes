@@ -336,3 +336,15 @@ callbacks = myCallback()
 
 model.fit(x_train, y_train, epochs=10, callbacks=[callbacks])
 ```
+
+## Leer datos de multiples archivos
+
+Para esto primero debemos tener en una variable las direccion de estos archivos para luego insertarlo como un `Dataset.list_files`.
+
+```python
+train_filepaths = ['datasets/my_data_00.csv', 'datasets/my_data_01.csv', ...]
+
+filepath_dataset = tf.data.Dataset.list_files(train_filepaths, seed=42)
+```
+
+Por defecto esto retornara un dataset barajado, en caso de querer lo contrario definimos `shuffle=False`.
