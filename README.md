@@ -16,6 +16,8 @@
     - [Verificar la forma de los inputs](#Verificar-la-forma-de-los-inputs)
     - [Batching y Prefetching](#Batching-y-Prefetching)
     - [Callbacks](#Callbacks)
+    - [Leer datos de multiples archivos](#Leer-datos-de-multiples-archivos)
+    - [Leer distintos formatos](#Leer-distintos-formatos)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -348,3 +350,42 @@ filepath_dataset = tf.data.Dataset.list_files(train_filepaths, seed=42)
 ```
 
 Por defecto esto retornara un dataset barajado, en caso de querer lo contrario definimos `shuffle=False`.
+
+## Leer distintos formatos
+
+### JSON
+
+Para leer datos con formato JSON.
+
+```python
+import json
+
+with open('sarcasm.json', 'r') as f:
+    datastore = json.load(f)
+
+sentences = []
+labels = []
+urls = []
+for item in datastore:
+    sentences.append(item['headline'])
+    labels.append(item['is_sarcastic'])
+    urls.append(item['article_link'])
+```
+
+### CSV
+
+```python
+import csv
+
+with open('bbc-text.csv'), 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    next(reader)
+    for row in reader:
+        labels.append(row[0])
+        sentence = row[1]
+        for word in stopwords:
+            token = ' ' + word + ' '
+            sentence = sentence.replace(token, ' ')
+            sentence = sentence.replace('  ', ' ')
+        sentences.append(sentence)
+```
