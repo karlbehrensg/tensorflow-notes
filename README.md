@@ -18,6 +18,9 @@
     - [Callbacks](#Callbacks)
     - [Leer datos de multiples archivos](#Leer-datos-de-multiples-archivos)
     - [Leer distintos formatos](#Leer-distintos-formatos)
+- [Clasificacion de imagenes](#Clasificacion-de-imagenes)
+    - [Red neuronal Convulusional con Conv2D y capas pooling](#Red-neuronal-Convulusional-con-Conv2D-y-capas-pooling)
+    - [ImageDataGenerator](#ImageDataGenerator)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -388,4 +391,72 @@ with open('bbc-text.csv'), 'r') as csvfile:
             sentence = sentence.replace(token, ' ')
             sentence = sentence.replace('  ', ' ')
         sentences.append(sentence)
+```
+
+# Clasificacion de imagenes
+
+## Red neuronal Convulusional con Conv2D y capas pooling
+
+```python
+model = tf.keras.models.Sequential([
+    # Note the input shape is the desired size of the image 150x150 with 3 bytes color
+    # This is the first convolution
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu', input_shape=(150, 150, 3)),
+    tf.keras.layers.MaxPooling2D(2, 2),
+    # The second convolution
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D(2,2),
+    # The third convolution
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D(2,2),
+    # The fourth convolution
+    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D(2,2),
+    # Flatten the results to feed into a DNN
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dropout(0.5),
+    # 512 neuron hidden layer
+    tf.keras.layers.Dense(512, activation='relu'),
+    tf.keras.layers.Dense(3, activation='softmax')
+])
+
+model.compile(loss = 'categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+
+history = model.fit(train_generator, epochs=25, steps_per_epoch=20, validation_data = validation_generator, verbose = 1, validation_steps=3)
+```
+
+## ImageDataGenerator
+
+Los directorios para las ImageDataGenerator deben separase en __Train__ y __Test__, y en cada uno deben estar separados por las __clases__.
+
+```python
+from keras_preprocessing.image import ImageDataGenerator
+
+TRAINING_DIR = "/tmp/rps/"
+training_datagen = ImageDataGenerator(
+    rescale = 1./255,
+	rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
+VALIDATION_DIR = "/tmp/rps-test-set/"
+validation_datagen = ImageDataGenerator(rescale = 1./255)
+
+train_generator = training_datagen.flow_from_directory(
+	TRAINING_DIR,
+	target_size=(150,150),
+	class_mode='categorical',
+    batch_size=126
+)
+
+validation_generator = validation_datagen.flow_from_directory(
+	VALIDATION_DIR,
+	target_size=(150,150),
+	class_mode='categorical',
+    batch_size=126
+)
 ```
