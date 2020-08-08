@@ -250,3 +250,31 @@ model.compile(optimizer = RMSprop(lr=0.0001),
               loss = 'binary_crossentropy', 
               metrics = ['accuracy'])
 ```
+
+## Verificar la forma de los inputs
+
+Los input de datos siempre seran de la dimension de nuestro X_train sin contar la coordenada batch.
+
+```python
+>>>train_set
+<PrefetchDataset shapes: ((None, None, 1), (None, None, 1)), types: (tf.float64, tf.float64)>
+>>>X_train.shape
+(3000,)
+```
+
+En este caso el input necesario seria `[None, 1]`.
+
+```python
+model = tf.keras.models.Sequential([
+  tf.keras.layers.Conv1D(filters=32, kernel_size=5,
+                        strides=1, padding="causal",
+                        activation="relu",
+                        input_shape=[None, 1]),
+  tf.keras.layers.LSTM(64, return_sequences=True),
+  tf.keras.layers.LSTM(64, return_sequences=True),
+  tf.keras.layers.Dense(30, activation="relu"),
+  tf.keras.layers.Dense(10, activation="relu"),
+  tf.keras.layers.Dense(1),
+  tf.keras.layers.Lambda(lambda x: x * 400)
+])
+```
