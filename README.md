@@ -253,7 +253,7 @@ model.compile(optimizer = RMSprop(lr=0.0001),
 
 ## Verificar la forma de los inputs
 
-Los input de datos siempre seran de la dimension de nuestro X_train sin contar la coordenada batch.
+Los input de datos siempre seran de la dimension de nuestro X_train sin contar la coordenada batch, mas la cantidad de canales de la capa, es por esto que para distintas capas cambia su `input_shape`.
 
 ```python
 >>>train_set
@@ -277,4 +277,21 @@ model = tf.keras.models.Sequential([
   tf.keras.layers.Dense(1),
   tf.keras.layers.Lambda(lambda x: x * 400)
 ])
+```
+
+## Batching y Prefetching
+
+Podemos hacer que nuestros datos vayan ingresando a nuestro modelo con el metodo `batch`, pero para eso debemos transformar nuestros datos en tipo `Dataset` de TensorFlow.
+
+El `prefetch` indica cuantos batch estara preparando cuando se estan ejecutando el entrenamiento.
+
+```python
+def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
+    series = tf.expand_dims(series, axis=-1)
+    ds = tf.data.Dataset.from_tensor_slices(series)
+    ds = ds.window(window_size + 1, shift=1, drop_remainder=True)
+    ds = ds.flat_map(lambda w: w.batch(window_size + 1))
+    ds = ds.shuffle(shuffle_buffer)
+    ds = ds.map(lambda w: (w[:-1], w[1:]))
+    return ds.batch(batch_size).prefetch(1)
 ```
