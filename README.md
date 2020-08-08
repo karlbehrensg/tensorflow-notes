@@ -13,6 +13,9 @@
     - [Graficar perdida y certeza del modelo durante entrenamiento](#Graficar-perdida-y-certeza-del-modelo-durante-entrenamiento)
     - [Evitando el overfitting](#Evitando-el-overfitting)
     - [Modelos pre entrenados (transfer learning)](#Modelos-pre-entrenados-transfer-learning)
+    - [Verificar la forma de los inputs](#Verificar-la-forma-de-los-inputs)
+    - [Batching y Prefetching](#Batching-y-Prefetching)
+    - [Callbacks](#Callbacks)
 
 # Construir y entrenar un modelo de red neuronal usando TensorFlow 2
 
@@ -294,4 +297,42 @@ def windowed_dataset(series, window_size, batch_size, shuffle_buffer):
     ds = ds.shuffle(shuffle_buffer)
     ds = ds.map(lambda w: (w[:-1], w[1:]))
     return ds.batch(batch_size).prefetch(1)
+```
+
+## Callbacks
+
+Los callbacks se ejecutan durante cada epoca de entrenamiento, estos pueden detener el entrenamiento cuando un parametro de evaluacion alcanza un valor deseado, cuando no hay mejoras u otros objetivos.
+
+Un ejemplo para detener el entrenamiento cuando __no hay mejoras__.
+
+```python
+early_stopping_cb = keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
+
+history = model.fit(X_train, y_train, 
+                    epochs=100, validation_data=(X_valid, y_valid), 
+                    callbacks=[early_stopping_cb])
+```
+
+Guardar __checkpoint__ del modelo durante el entrenamiento.
+
+```python
+checkpoint_cb = keras.callbacks.ModelCheckpoint('my_keras_model.h5')
+
+history = model.fit(X_train, y_train, 
+                    epochs=10, validation_data=(X_valid, y_valid), 
+                    callbacks=[checkpoint_cb])
+```
+
+O un callback __personalizado__.
+
+```python
+class myCallback(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        if(logs.get('accuracy')>0.6):
+            print("\nReached 60% accuracy so cancelling training!")
+            self.model.stop_training = True
+
+callbacks = myCallback()
+
+model.fit(x_train, y_train, epochs=10, callbacks=[callbacks])
 ```
